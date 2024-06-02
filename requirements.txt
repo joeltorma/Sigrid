@@ -1,0 +1,6 @@
+Flask
+flask_socketio
+gevent
+flask_cors
+websockets
+pymongo

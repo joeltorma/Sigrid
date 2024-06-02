@@ -17,27 +17,28 @@ state = "Off"
 thread_pool_manager = threadManager.ThreadManager()
 
 
-
 @app.route('/toggleAlarm', methods=['POST'])
 def onOff():
     data = request.get_json()
     hour = data.get('hour')
     minute = data.get('minute')
-    state = data.get('active', False)  # Assuming 'isOn' is a boolean, defaulting to False
+    # Assuming 'isOn' is a boolean, defaulting to False
+    state = data.get('active', False)
 
-    #find correct alarm and start it
+    # find correct alarm and start it
     hour, minute = db.findAlarm(hour, minute, state)
     if hour or minute == -1:
-        return jsonify({'error': 'error'}),400
-    #If a old alarm is set to be active
+        return jsonify({'error': 'error'}), 400
+    # If a old alarm is set to be active
     if state:
         time = datetime.time(hour=hour, minute=minute)
         thread_pool_manager.submit_task(time)
-        return jsonify({"Alarm state": state}),200
-    
-    #If a active alarm is set to be deactived
+        return jsonify({"Alarm state": state}), 200
+
+    # If a active alarm is set to be deactived
     thread_pool_manager.close_task(time)
-    return jsonify({"status": "success"}),200
+    return jsonify({"status": "success"}), 200
+
 
 @app.route('/coffe/timer', methods=['POST'])
 def setTimer():
@@ -48,8 +49,9 @@ def setTimer():
     time = datetime.time(hour=hour, minute=minute)
 
     thread_pool_manager.submit_task(time)
-    #Here I wanna start a thread that runs in the background
+    # Here I wanna start a thread that runs in the background
     return jsonify({"status": "succes"})
+
 
 @app.route('/createAlarm', methods=['POST'])
 def createAlarm():
@@ -62,12 +64,13 @@ def createAlarm():
     status = db.createAlarm(hour, minute)
 
     if status != "OK":
-        return jsonify({'Error': status}),400
-    
+        return jsonify({'Error': status}), 400
+
     time = datetime.time(hour=hour, minute=minute)
     thread_pool_manager.submit_task(time)
-    
+
     return jsonify({"Succes": "Alarm has been created"}), 200
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -75,10 +78,11 @@ def login():
     username = data.get('username', 0)
     password = data.get('password', 0)
 
-    if db.login(username, password) =='OK':
-        return jsonify({'Succes': "Login success"}),200
+    if db.login(username, password) == 'OK':
+        return jsonify({'Succes': "Login success"}), 200
 
     return jsonify({'Status': 'wrong password or username'}), 400
+
 
 @app.route('/getAllAlarms', methods=['GET'])
 def getAllAlarms():
@@ -86,6 +90,7 @@ def getAllAlarms():
     if alarms == Exception:
         return jsonify({"error": "Internel Server Error"}), 500
     return jsonify({"Alarms": alarms}), 200
+
 
 @app.route('/checkActive', methods=['GET'])
 def checkActive():
@@ -96,8 +101,8 @@ def checkActive():
 
 
 def run_flask():
-    app.run(debug=False, host='0.0.0.0' ,port=5001)
+    app.run(debug=False, host='0.0.0.0', port=5001)
+
 
 if __name__ == '__main__':
     run_flask()
-
